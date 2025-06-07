@@ -1,9 +1,10 @@
-# web_scraper.py (Geliştirilmiş Metin Temizliği)
+# web_scraper.py (Daha da Gelişmiş Metin Temizliği ve İstenmeyen İçerik Filtreleme)
 
 import requests
 from bs4 import BeautifulSoup
 import re
 import time
+import random # Rastgele bekleme süresi için
 
 def search_and_scrape(query):
     search_url = f"https://duckduckgo.com/html/?q={query.replace(' ', '+')}"
@@ -13,7 +14,9 @@ def search_and_scrape(query):
 
     try:
         print(f"DuckDuckGo'da bilgi aranıyor: '{query}'...")
-        response = requests.get(search_url, headers=headers, timeout=10)
+        time.sleep(random.uniform(1, 3)) # Rastgele bekleme süresi ekleyelim
+
+        response = requests.get(search_url, headers=headers, timeout=15)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
 
@@ -34,42 +37,91 @@ def search_and_scrape(query):
 
         if first_link:
             print(f"Bulunan ilk bağlantı (DuckDuckGo): {first_link}")
-            time.sleep(1)
+            time.sleep(random.uniform(1, 3)) # Linke gitmeden önce rastgele bekleme
 
-            page_response = requests.get(first_link, headers=headers, timeout=10)
+            page_response = requests.get(first_link, headers=headers, timeout=15)
             page_response.raise_for_status()
             page_soup = BeautifulSoup(page_response.text, 'html.parser')
 
-            # Geliştirilmiş Metin Temizliği:
-            # Sadece paragraf (<p>) etiketlerinin içeriğini çekmeye çalışalım.
-            # Alternatif olarak, ana içerik div'lerini bulabiliriz, ancak bu genel bir başlangıç.
-            paragraphs = page_soup.find_all('p')
+            # İstenmeyen etiketleri ve genellikle menü/navigasyon içeren etiketleri kaldır
+            for unwanted_tag in page_soup(['script', 'style', 'header', 'footer', 'nav', 'aside', 'form', 'button', 'input', 'img', 'svg', 'picture', 'figure', 'iframe', 'audio', 'video', 'figcaption', 'noscript']):
+                unwanted_tag.decompose()
+
+            # İstenmeyen sınıflara sahip div'leri ve diğer öğeleri kaldır (genel menü, navigasyon, dipnotlar vb.)
+            unwanted_classes = [
+                'navbar', 'menu', 'sidebar', 'footer-links', 'header-links',
+                'navigation', 'infobox', 'reference', 'ref-list', 'mw-jump-link',
+                'toc', 'mw-indicators', 'thumb', 'noprint', 'portal' # Wikipedia'ya özgü bazı sınıflar
+            ]
+            for class_name in unwanted_classes:
+                for tag in page_soup.find_all(class_=class_name):
+                    tag.decompose()
+
+            # Sayfanın ana içeriğini bulmaya çalış
+            # Daha genel bir yaklaşım: <article> veya belirli id'lere sahip ana içerik div'leri
+            main_content_area = page_soup.find('div', id='mw-content-text') # Wikipedia ana içerik ID'si
+            if not main_content_area:
+                main_content_area = page_soup.find('article')
+            if not main_content_area:
+                main_content_area = page_soup.find('main')
+            if not main_content_area:
+                main_content_area = page_soup.find('body') # Son çare tüm body'den al
+
+            elements = []
+            if main_content_area:
+                # Ana içerik alanından sadece paragraf, başlık ve liste öğelerini çek
+                elements = main_content_area.find_all(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li'])
+            else:
+                # Ana içerik alanı bulunamazsa genel olarak paragraf, başlık ve liste elemanlarını çek
+                elements = page_soup.find_all(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li'])
+
             extracted_texts = []
-            for p in paragraphs:
-                text = p.get_text(separator=' ', strip=True) # Boşluklarla birleştir ve boşlukları temizle
-                if text:
+            for element in elements:
+                text = element.get_text(separator=' ', strip=True)
+                # Boş veya çok kısa metinleri atla
+                if text and len(text) > 20: # Minimum metin uzunluğunu biraz artırdık
                     extracted_texts.append(text)
 
             clean_text = ' '.join(extracted_texts)
 
-            # JavaScript ve CSS gibi istenmeyen etiketleri tamamen kaldır
-            for script_or_style in page_soup(['script', 'style', 'header', 'footer', 'nav']):
-                script_or_style.decompose()
+            # Fazla boşlukları, yeni satır karakterlerini ve Unicode boşluklarını temizle
+            clean_text = re.sub(r'\s+', ' ', clean_text).strip()
 
-            # Çok uzun metinleri kısalt (ilk 500 karakter yine iyi bir başlangıç)
-            if len(clean_text) > 500:
-                clean_text = clean_text[:500] + "..."
+            # [1], [2] gibi referans numaralarını kaldır (bazı siteler için hala gerekli olabilir)
+            clean_text = re.sub(r'\[\d+\]', '', clean_text)
 
-            if clean_text and len(clean_text) > 50:
+            # Parantez içindeki sayıları veya kısa ifadeleri kaldırma (Örn: (Aralık 2023))
+            clean_text = re.sub(r'\s*\(.*?\)\s*', ' ', clean_text) # Bu kısım dikkatli kullanılmalı, bazen önemli bilgiyi silebilir
+
+            # Wikipedia'ya özgü "Koordinatlar" gibi başlangıç ifadelerini kaldırma
+            if "Koordinatlar :" in clean_text:
+                clean_text = clean_text.split("Koordinatlar :", 1)[1].strip()
+
+            # Metnin başındaki ve sonundaki gereksiz özel karakterleri temizle
+            clean_text = re.sub(r'^[^a-zA-Z0-9çÇğĞıİöÖşŞüÜ\s]*', '', clean_text) # Başlangıçtaki özel karakterler
+            clean_text = re.sub(r'[^a-zA-Z0-9çÇğĞıİöÖşŞüÜ\s]*$', '', clean_text) # Sondaki özel karakterler
+
+            # Çok uzun metinleri kısalt
+            if len(clean_text) > 800: # Kısaltma limitini biraz daha artırdık
+                # Kelime ortasından kesmemek için son boşluğa kadar al
+                clean_text = clean_text[:800].rsplit(' ', 1)[0] + "..." 
+            elif len(clean_text) > 500 and not clean_text.endswith("..."):
+                clean_text += "..."
+
+            if clean_text and len(clean_text) > 70: # Minimum çekilen metin uzunluğunu artırdık
                 return clean_text
             else:
-                return "Belirtilen bağlantıdan anlamlı bir metin çekilemedi."
+                return f"Web'den çekilen metin anlamlı değil veya çok kısa. Bağlantı: {first_link}"
         else:
-            return "DuckDuckGo aramasında uygun bir bağlantı bulunamadı."
+            return "DuckDuckGo aramasında uygun bir bağlantı bulunamadı. Lütfen sorgunuzu kontrol edin."
 
-    except requests.exceptions.RequestException as e:
-        print(f"Web isteği hatası: {e}")
-        return "Web'den bilgi çekerken bir sorun oluştu."
+    except requests.exceptions.HTTPError as errh:
+        return f"Web isteği hatası (HTTP): {errh}. Sunucuya erişilemiyor veya sayfa bulunamadı."
+    except requests.exceptions.ConnectionError as errc:
+        return f"Web isteği hatası (Bağlantı): {errc}. İnternet bağlantınızı kontrol edin."
+    except requests.exceptions.Timeout as errt:
+        return f"Web isteği hatası (Zaman Aşımı): {errt}. İstek zaman aşımına uğradı."
+    except requests.exceptions.RequestException as err:
+        return f"Beklenmedik web isteği hatası: {err}. Lütfen tekrar deneyin."
     except Exception as e:
-        print(f"Web kazıma hatası: {e}")
-        return "Web sayfasını işlerken bir sorun oluştu."
+        return f"Web sayfasını işlerken bir sorun oluştu: {e}. Lütfen tekrar deneyin."
