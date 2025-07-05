@@ -28,51 +28,69 @@ This assistant is developed with the vision of being "a big project for humanity
 
 ## 🚀 Setup and Running
 
-Follow these steps to set up and run the project on your local machine:
+To set up and run the project on your local machine, follow these steps:
 
-### 1. Clone the Repository
+1.  **Clone the Repository:** If you haven't already, clone the project repository to your local machine.
+    ```bash
+    git clone [https://github.com/YourGitHubUsername/EBDS.git](https://github.com/YourGitHubUsername/EBDS.git) # Replace with your GitHub username
+    cd EBDS
+    ```
+2.  **Create and Activate Virtual Environment:** It is highly recommended to create a virtual environment to isolate project dependencies. Then, activate it.
+    ```bash
+    python -m venv venv
+    # On Windows (PowerShell):
+    .\venv\Scripts\activate
+    # On macOS/Linux (Bash/Zsh):
+    # source venv/bin/activate
+    ```
+3.  **Install Dependencies:** Install all required Python libraries listed in `requirements.txt`.
+    ```bash
+    pip install -r requirements.txt
+    ```
+4.  **Download NLTK Resources:** For Sumy and other NLP operations to function correctly, you may need to download NLTK's `punkt` tokenizer. Run this command **once**.
+    ```bash
+    python -c "import nltk; nltk.download('punkt')"
+    ```
+5.  **Start the Application:** Launch the Streamlit application. It should automatically open in your web browser (typically at `http://localhost:8501`).
+    ```bash
+    streamlit run app.py
+    # Alternatively (If 'streamlit' command is not directly recognized, especially on Windows/PowerShell):
+    # .\venv\Scripts\streamlit run app.py
+    ```
 
-```bash
-git clone [https://github.com/YourGitHubUsername/EBDS.git](https://github.com/YourGitHubUsername/EBDS.git) # Replace with your GitHub username
-cd EBDS
-2. Create and Activate Virtual Environment
-It is highly recommended to create a virtual environment to isolate project dependencies.
+## ⚙️ Git Commands (For Version Control)
 
-Bash
+These commands are essential for managing your project's version control and pushing changes to your GitHub repository.
 
-python -m venv venv
-On Windows:
+1.  **Add Changes to Staging Area:** Prepare all your modified (new, changed, deleted) files for the next commit.
+    ```bash
+    git add .
+    ```
+2.  **Commit Changes:** Save the staged changes to your local repository. Use the `-m` flag to add a concise commit message describing your changes.
+    ```bash
+    git commit -m "Your descriptive commit message here"
+    ```
+3.  **Push Changes to GitHub:** Send your local commits to your remote GitHub repository. The `master:main` part sends changes from your local `master` branch to the `main` branch on GitHub (which is the modern default).
+    ```bash
+    git push origin master:main
+    # If your remote repository's main branch is still named 'master', you might need to use:
+    # git push origin master
+    ```
+4.  **Check/Update Git Configuration (Email):** Verify which email address Git is using for your commits. This email must match a verified email address associated with your GitHub account for contributions to appear on your profile. If it's incorrect, update it.
+    ```bash
+    git config --global user.email
+    # To update:
+    # git config --global user.email "your_verified_github_email@example.com"
+    ```
 
-Bash
+## 📝 Usage
 
-.\venv\Scripts\activate
-On macOS/Linux:
+Once the application opens, type a question related to basic sciences into the "Type your question here..." box and press Enter. The assistant will provide information from its knowledge base or by fetching it from the web.
 
-Bash
+## 🤝 Contributing
 
-source venv/bin/activate
-3. Install Dependencies
-Install all required Python libraries:
+If you wish to contribute to the project, please feel free to create a Pull Request or report an Issue.
 
-Bash
+## 📜 License
 
-pip install -r requirements.txt
-4. Download NLTK Resources
-For Sumy and other NLP operations to function correctly, you may need to download NLTK's punkt tokenizer. Run this command once:
-
-Bash
-
-python -c "import nltk; nltk.download('punkt')"
-5. Start the Application
-Start the Streamlit application with the following command:
-
-Bash
-
-streamlit run app.py
-or (If the streamlit command is not directly recognized):
-
-Bash
-
-.\venv\Scripts\streamlit run app.py
-The application will automatically open in your web browser (usually at http://localhost:8501).
-
+This project is licensed under the MIT License. See the `LICENSE` file for more details.
