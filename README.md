@@ -33,3 +33,5 @@ Follow these steps to set up and run the project on your local machine:
 ### 1. Clone the Repository
 
 ```bash
+https://github.com/emineugurlu/EBDS
+cd EBDS
