@@ -33,5 +33,46 @@ Follow these steps to set up and run the project on your local machine:
 ### 1. Clone the Repository
 
 ```bash
-https://github.com/emineugurlu/EBDS
+git clone [https://github.com/YourGitHubUsername/EBDS.git](https://github.com/YourGitHubUsername/EBDS.git) # Replace with your GitHub username
 cd EBDS
+2. Create and Activate Virtual Environment
+It is highly recommended to create a virtual environment to isolate project dependencies.
+
+Bash
+
+python -m venv venv
+On Windows:
+
+Bash
+
+.\venv\Scripts\activate
+On macOS/Linux:
+
+Bash
+
+source venv/bin/activate
+3. Install Dependencies
+Install all required Python libraries:
+
+Bash
+
+pip install -r requirements.txt
+4. Download NLTK Resources
+For Sumy and other NLP operations to function correctly, you may need to download NLTK's punkt tokenizer. Run this command once:
+
+Bash
+
+python -c "import nltk; nltk.download('punkt')"
+5. Start the Application
+Start the Streamlit application with the following command:
+
+Bash
+
+streamlit run app.py
+or (If the streamlit command is not directly recognized):
+
+Bash
+
+.\venv\Scripts\streamlit run app.py
+The application will automatically open in your web browser (usually at http://localhost:8501).
+
