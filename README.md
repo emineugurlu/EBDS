@@ -80,7 +80,7 @@ These commands are essential for managing your project's version control and pus
     ```bash
     git config --global user.email
     # To update:
-    # git config --global user.email "your_verified_github_email@example.com"
+    # git config --global user.email "emineugurlu957@gmail.com"
     ```
 
 ## 📝 Usage
