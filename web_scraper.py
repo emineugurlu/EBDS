@@ -1,10 +1,21 @@
-# web_scraper.py (Daha da Gelişmiş Metin Temizliği ve İstenmeyen İçerik Filtreleme)
+# web_scraper.py (Daha da Gelişmiş Metin Temizliği ve Basit Özetleme)
 
 import requests
 from bs4 import BeautifulSoup
 import re
 import time
-import random # Rastgele bekleme süresi için
+import random
+import nltk # NLTK kütüphanesi için import (eğer yüklü değilse yükleyeceğiz)
+from nltk.tokenize import sent_tokenize # Cümleleri ayırmak için
+
+# NLTK'nın punkt tokenizer'ını indir (bir kez çalıştırılması yeterlidir)
+try:
+    nltk.data.find('tokenizers/punkt')
+except nltk.downloader.DownloadError:
+    print("NLTK 'punkt' tokenizer indiriliyor... Bu bir kez yapılacaktır.")
+    nltk.download('punkt')
+    print("NLTK 'punkt' tokenizer indirildi.")
+
 
 def search_and_scrape(query):
     search_url = f"https://duckduckgo.com/html/?q={query.replace(' ', '+')}"
@@ -14,7 +25,7 @@ def search_and_scrape(query):
 
     try:
         print(f"DuckDuckGo'da bilgi aranıyor: '{query}'...")
-        time.sleep(random.uniform(1, 3)) # Rastgele bekleme süresi ekleyelim
+        time.sleep(random.uniform(1, 3))
 
         response = requests.get(search_url, headers=headers, timeout=15)
         response.raise_for_status()
@@ -37,7 +48,7 @@ def search_and_scrape(query):
 
         if first_link:
             print(f"Bulunan ilk bağlantı (DuckDuckGo): {first_link}")
-            time.sleep(random.uniform(1, 3)) # Linke gitmeden önce rastgele bekleme
+            time.sleep(random.uniform(1, 3))
 
             page_response = requests.get(first_link, headers=headers, timeout=15)
             page_response.raise_for_status()
@@ -57,59 +68,57 @@ def search_and_scrape(query):
                 for tag in page_soup.find_all(class_=class_name):
                     tag.decompose()
 
-            # Sayfanın ana içeriğini bulmaya çalış
-            # Daha genel bir yaklaşım: <article> veya belirli id'lere sahip ana içerik div'leri
-            main_content_area = page_soup.find('div', id='mw-content-text') # Wikipedia ana içerik ID'si
+            main_content_area = page_soup.find('div', id='mw-content-text')
             if not main_content_area:
                 main_content_area = page_soup.find('article')
             if not main_content_area:
                 main_content_area = page_soup.find('main')
             if not main_content_area:
-                main_content_area = page_soup.find('body') # Son çare tüm body'den al
+                main_content_area = page_soup.find('body')
 
             elements = []
             if main_content_area:
-                # Ana içerik alanından sadece paragraf, başlık ve liste öğelerini çek
                 elements = main_content_area.find_all(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li'])
             else:
-                # Ana içerik alanı bulunamazsa genel olarak paragraf, başlık ve liste elemanlarını çek
                 elements = page_soup.find_all(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li'])
 
             extracted_texts = []
             for element in elements:
                 text = element.get_text(separator=' ', strip=True)
-                # Boş veya çok kısa metinleri atla
-                if text and len(text) > 20: # Minimum metin uzunluğunu biraz artırdık
+                if text and len(text) > 20:
                     extracted_texts.append(text)
 
-            clean_text = ' '.join(extracted_texts)
+            raw_text = ' '.join(extracted_texts) # Ham metni tutalım
 
-            # Fazla boşlukları, yeni satır karakterlerini ve Unicode boşluklarını temizle
-            clean_text = re.sub(r'\s+', ' ', clean_text).strip()
-
-            # [1], [2] gibi referans numaralarını kaldır (bazı siteler için hala gerekli olabilir)
+            # Temizleme adımları
+            clean_text = re.sub(r'\s+', ' ', raw_text).strip()
             clean_text = re.sub(r'\[\d+\]', '', clean_text)
+            clean_text = re.sub(r'\s*\(.*?\)\s*', ' ', clean_text)
 
-            # Parantez içindeki sayıları veya kısa ifadeleri kaldırma (Örn: (Aralık 2023))
-            clean_text = re.sub(r'\s*\(.*?\)\s*', ' ', clean_text) # Bu kısım dikkatli kullanılmalı, bazen önemli bilgiyi silebilir
+            # Başındaki ve sonundaki özel karakterleri temizle
+            clean_text = re.sub(r'^[^a-zA-Z0-9çÇğĞıİöÖşŞüÜ\s]*', '', clean_text)
+            clean_text = re.sub(r'[^a-zA-Z0-9çÇğĞıİöÖşŞüÜ\s]*$', '', clean_text)
 
-            # Wikipedia'ya özgü "Koordinatlar" gibi başlangıç ifadelerini kaldırma
-            if "Koordinatlar :" in clean_text:
-                clean_text = clean_text.split("Koordinatlar :", 1)[1].strip()
+            # Cümlelere ayır ve özetle
+            sentences = sent_tokenize(clean_text)
 
-            # Metnin başındaki ve sonundaki gereksiz özel karakterleri temizle
-            clean_text = re.sub(r'^[^a-zA-Z0-9çÇğĞıİöÖşŞüÜ\s]*', '', clean_text) # Başlangıçtaki özel karakterler
-            clean_text = re.sub(r'[^a-zA-Z0-9çÇğĞıİöÖşŞüÜ\s]*$', '', clean_text) # Sondaki özel karakterler
+            # Belirli bir cümle sayısıyla sınırlı özet (örn. ilk 3-5 cümle)
+            summary_sentences = []
+            current_length = 0
+            max_summary_length = 700 # Maksimum özet uzunluğu
+            max_sentences = 5 # Maksimum cümle sayısı
 
-            # Çok uzun metinleri kısalt
-            if len(clean_text) > 800: # Kısaltma limitini biraz daha artırdık
-                # Kelime ortasından kesmemek için son boşluğa kadar al
-                clean_text = clean_text[:800].rsplit(' ', 1)[0] + "..." 
-            elif len(clean_text) > 500 and not clean_text.endswith("..."):
-                clean_text += "..."
+            for i, sent in enumerate(sentences):
+                if i < max_sentences and (current_length + len(sent) + 1) <= max_summary_length:
+                    summary_sentences.append(sent)
+                    current_length += len(sent) + 1
+                else:
+                    break
 
-            if clean_text and len(clean_text) > 70: # Minimum çekilen metin uzunluğunu artırdık
-                return clean_text
+            final_summary = ' '.join(summary_sentences)
+
+            if final_summary and len(final_summary) > 70:
+                return f"{final_summary} [Kaynak: {first_link}]" # Kaynağı da ekleyelim
             else:
                 return f"Web'den çekilen metin anlamlı değil veya çok kısa. Bağlantı: {first_link}"
         else:
