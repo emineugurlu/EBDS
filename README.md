@@ -32,7 +32,7 @@ To set up and run the project on your local machine, follow these steps:
 
 1.  **Clone the Repository:** If you haven't already, clone the project repository to your local machine.
     ```bash
-    git clone [https://github.com/YourGitHubUsername/EBDS.git](https://github.com/YourGitHubUsername/EBDS.git) # Replace with your GitHub username
+    git clone https://github.com/emineugurlu/EBDS/ # Replace with your GitHub username
     cd EBDS
     ```
 2.  **Create and Activate Virtual Environment:** It is highly recommended to create a virtual environment to isolate project dependencies. Then, activate it.
