@@ -1,96 +1,65 @@
-# 🔬 EBDS Basic Science Assistant
+# 🔬 EBDS: Intelligent Basic Science Assistant & Urban Researcher
 
-This project is an AI-powered science assistant developed to provide quick and accurate answers to users in the field of basic sciences. In addition to its internal knowledge base, it has the ability to fetch and summarize up-to-date information from the internet. It features an interactive and user-friendly web interface built with the Streamlit framework.
+> **"A high-performance, AI-driven ecosystem designed to democratize access to fundamental scientific knowledge. Built with Python and Streamlit, EBDS integrates real-time web intelligence with advanced NLP architectures to enhance global scientific literacy."**
 
-## 🚀 Project Vision
+![Language](https://img.shields.io/badge/Language-Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Framework](https://img.shields.io/badge/Framework-Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)
+![NLP](https://img.shields.io/badge/NLP-Sentence--Transformers-yellow?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge)
 
-This assistant is developed with the vision of being "a big project for humanity". Our goal is to facilitate access to fundamental scientific knowledge and enhance scientific literacy.
+**EBDS Basic Science Assistant** is more than a chat interface; it is a scalable framework for scientific discovery. Developed by **Emine Uğurlu**, this project aims to provide quick, accurate, and summarized scientific data by bridging the gap between static knowledge bases and dynamic web intelligence.
 
-## ✨ Features
+---
 
-* **Intelligent Answering:** Utilizes NLP (Natural Language Processing) techniques to understand user queries and provide relevant answers.
-* **Knowledge Base Integration:** Offers fast and accurate responses to topics within its predefined knowledge base.
-* **Web Scraping:** For questions not found in its knowledge base, it finds relevant web pages via DuckDuckGo and extracts their content.
-* **Intelligent Summarization:** Summarizes lengthy texts fetched from the web using the `sumy` library's LexRank algorithm, presenting them in an understandable format.
-* **Interactive Chat Interface:** Provides a modern and intuitive chat-based user interface with Streamlit. It maintains a chat history, and messages are displayed in bubbles.
-* **User Feedback Mechanism:** Includes simple like/dislike buttons to evaluate the helpfulness of the assistant's responses.
-* **Comprehensive Error Handling:** Notifies the user clearly about errors that may occur during web scraping or other operations.
+## 🚀 Engineering Excellence
 
-## 🛠️ Technologies
+This project showcases professional-grade Python development and AI integration standards:
 
-* **Python:** The primary development language for the project.
-* **Streamlit:** Web framework used for developing the user interface (GUI).
-* **Sentence Transformers:** NLP library used for converting texts into embeddings.
-* **scikit-learn:** For similarity calculations (`cosine_similarity`).
-* **BeautifulSoup4 & Requests:** For web scraping operations.
-* **Sumy:** For summarizing texts fetched from the web (using the `LexRank` algorithm).
-* **NLTK:** For text processing and sentence tokenization (specifically the `punkt` tokenizer).
+* **Hybrid Intelligence Engine:** Seamlessly switches between an internal vector-based knowledge base and real-time web scraping via **DuckDuckGo** when local data is insufficient.
+* **Semantic Search & Embeddings:** Utilizing **Sentence Transformers** and `cosine_similarity` to ensure high-precision matching between user queries and scientific data.
+* **Autonomous Summarization:** Implementation of the **LexRank algorithm** via the `sumy` library to distill lengthy research papers and web content into digestible insights.
+* **Robust Web Orchestration:** High-performance scraping architecture using **BeautifulSoup4** and **Requests** with comprehensive error handling for network stability.
+* **User-Centric Feedback Loop:** Integrated real-time feedback mechanism (like/dislike) to evaluate AI response accuracy and optimize future inference.
 
-## 🚀 Setup and Running
+## ✨ Core Features
 
-To set up and run the project on your local machine, follow these steps:
+* 🧠 **Intelligent Answering:** Advanced NLP pipeline for deep understanding of complex scientific queries.
+* 🌐 **Real-time Web Integration:** Dynamic content extraction from the web to stay updated with the latest scientific breakthroughs.
+* 💬 **Interactive UX:** A modern, bubble-based chat interface maintaining session history for seamless scientific dialogue.
+* 📊 **Scalable Knowledge Base:** Modular structure allowing for easy expansion of predefined scientific datasets.
 
-1.  **Clone the Repository:** If you haven't already, clone the project repository to your local machine.
-    ```bash
-    git clone https://github.com/emineugurlu/EBDS/ # Replace with your GitHub username
-    cd EBDS
-    ```
-2.  **Create and Activate Virtual Environment:** It is highly recommended to create a virtual environment to isolate project dependencies. Then, activate it.
-    ```bash
-    python -m venv venv
-    # On Windows (PowerShell):
-    .\venv\Scripts\activate
-    # On macOS/Linux (Bash/Zsh):
-    # source venv/bin/activate
-    ```
-3.  **Install Dependencies:** Install all required Python libraries listed in `requirements.txt`.
-    ```bash
-    pip install -r requirements.txt
-    ```
-4.  **Download NLTK Resources:** For Sumy and other NLP operations to function correctly, you may need to download NLTK's `punkt` tokenizer. Run this command **once**.
-    ```bash
-    python -c "import nltk; nltk.download('punkt')"
-    ```
-5.  **Start the Application:** Launch the Streamlit application. It should automatically open in your web browser (typically at `http://localhost:8501`).
-    ```bash
-    streamlit run app.py
-    # Alternatively (If 'streamlit' command is not directly recognized, especially on Windows/PowerShell):
-    # .\venv\Scripts\streamlit run app.py
-    ```
+## 🛠️ Technologies & Stack
 
-## ⚙️ Git Commands (For Version Control)
+* **Core Logic:** Python 3.10+
+* **UI/UX:** Streamlit (Reactive Web Framework)
+* **AI/ML:** Sentence Transformers, scikit-learn (Embeddings & Similarity)
+* **Text Processing:** NLTK, Sumy (Lexical Analysis & Tokenization)
+* **Networking:** Requests, BeautifulSoup4 (Scraping & Extraction)
 
-These commands are essential for managing your project's version control and pushing changes to your GitHub repository.
+---
+## ⚙️ Installation & Setup
 
-1.  **Add Changes to Staging Area:** Prepare all your modified (new, changed, deleted) files for the next commit.
-    ```bash
-    git add .
-    ```
-2.  **Commit Changes:** Save the staged changes to your local repository. Use the `-m` flag to add a concise commit message describing your changes.
-    ```bash
-    git commit -m "Your descriptive commit message here"
-    ```
-3.  **Push Changes to GitHub:** Send your local commits to your remote GitHub repository. The `master:main` part sends changes from your local `master` branch to the `main` branch on GitHub (which is the modern default).
-    ```bash
-    git push origin master:main
-    # If your remote repository's main branch is still named 'master', you might need to use:
-    # git push origin master
-    ```
-4.  **Check/Update Git Configuration (Email):** Verify which email address Git is using for your commits. This email must match a verified email address associated with your GitHub account for contributions to appear on your profile. If it's incorrect, update it.
-    ```bash
-    git config --global user.email
-    # To update:
-    # git config --global user.email "emineugurlu957@gmail.com"
-    ```
+### 1. Prerequisites
+* Python 3.10 or higher.
+* Virtual Environment (Recommended).
 
-## 📝 Usage
+### 2. Getting Started
+```bash
+git clone [https://github.com/emineugurlu/EBDS.git](https://github.com/emineugurlu/EBDS.git)
+cd EBDS
+python -m venv venv
+source venv/bin/activate  # Or .\venv\Scripts\activate on Windows
+pip install -r requirements.txt
+````
 
-Once the application opens, type a question related to basic sciences into the "Type your question here..." box and press Enter. The assistant will provide information from its knowledge base or by fetching it from the web.
+### 3. Initialize NLP Resources 
+````bash 
+python -c "import nltk; nltk.download('punkt')"
+````
 
-## 🤝 Contributing
+### 4.Launch the Engine
+````bash
+streamlit run app.py
+````
 
-If you wish to contribute to the project, please feel free to create a Pull Request or report an Issue.
-
-## 📜 License
-
-This project is licensed under the MIT License. See the `LICENSE` file for more details.
+Developed by Emine Uğurlu - Computer Engineer
